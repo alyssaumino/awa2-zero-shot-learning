@@ -4,6 +4,10 @@ import clip
 from tqdm.notebook import tqdm
 import torchvision
 
+from AnimalDataset import AnimalDataset
+from torch.utils import data
+import torchvision.transforms as transforms
+
 model, preprocess = clip.load("ViT-B/32")
 '''
 def load_clip():
@@ -119,11 +123,29 @@ def create_prompts():
 animal_classes, animal_templates = create_prompts()
 
 
+'''
 def load_images():
-    '''Loading the Images'''
+    #Loading the Images
     images = torchvision.datasets.ImageFolder("./data/JPEGImages/trainclasses/", transform=preprocess)
     loader = torch.utils.data.DataLoader(images, batch_size=32, num_workers=2)
     return loader
+
+loader = load_images()
+'''
+
+def load_images():
+    batch_size = 24
+    train_params = {'batch_size': batch_size, 'shuffle': True, 'num_workers': 3}
+    train_process_steps = transforms.Compose([
+        transforms.RandomRotation(15),
+        transforms.RandomHorizontalFlip(),
+        transforms.ColorJitter(brightness=0.3, contrast=0.3),
+        transforms.Resize((224,224)), # ImageNet standard
+        transforms.ToTensor()
+    ])
+
+    train_dataset = AnimalDataset('data/trainclasses.txt', train_process_steps)
+    return data.DataLoader(train_dataset, **train_params)
 
 loader = load_images()
 
@@ -133,13 +155,13 @@ def zeroshot_classifier(classnames, templates):
         zeroshot_weights = []
         for classname in tqdm(classnames):
             texts = [template.format(classname) for template in templates] #format with class
-            texts = clip.tokenize(texts)#.cuda() #tokenize
+            texts = clip.tokenize(texts).cuda() #tokenize
             class_embeddings = model.encode_text(texts) #embed with text encoder
             class_embeddings /= class_embeddings.norm(dim=-1, keepdim=True)
             class_embedding = class_embeddings.mean(dim=0)
             class_embedding /= class_embedding.norm()
             zeroshot_weights.append(class_embedding)
-        zeroshot_weights = torch.stack(zeroshot_weights, dim=1)#.cuda()
+        zeroshot_weights = torch.stack(zeroshot_weights, dim=1).cuda()
     return zeroshot_weights
 
 zeroshot_weights = zeroshot_classifier(animal_classes, animal_templates)
@@ -160,8 +182,8 @@ def find_accuracy(loader, zeroshot_weights):
         with torch.no_grad():
             top1, top5, n = 0., 0., 0.
             for i, (images, target) in enumerate(tqdm(loader)):
-                images = images#.cuda()
-                target = target#.cuda()
+                images = images.cuda()
+                target = target.cuda()
                 
                 # predict
                 image_features = model.encode_image(images)
