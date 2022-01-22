@@ -144,8 +144,8 @@ def load_images():
         transforms.ToTensor()
     ])
 
-    train_dataset = AnimalDataset('data/trainclasses.txt', train_process_steps)
-    return data.DataLoader(train_dataset, **train_params)
+    train_dataset = AnimalDataset('trainclasses.txt', train_process_steps)
+    return torch.utils.data.DataLoader(train_dataset, batch_size=32, num_workers=2)
 
 loader = load_images()
 
