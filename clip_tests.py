@@ -181,7 +181,8 @@ def find_accuracy(loader, zeroshot_weights):
     if __name__ == '__main__':  #need this for running on windows
         with torch.no_grad():
             top1, top5, n = 0., 0., 0.
-            for i, (images, target) in enumerate(tqdm(loader)):
+            for i, (images, features, img_names, target) in enumerate(tqdm(loader)):
+                print(target)
                 images = images.cuda()
                 target = target.cuda()
                 
