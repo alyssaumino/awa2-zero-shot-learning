@@ -9,6 +9,7 @@ from torch.utils import data
 import torchvision.transforms as transforms
 
 model, preprocess = clip.load("ViT-B/32")
+model.eval()
 '''
 def load_clip():
     ###Preparation for Colab
@@ -181,9 +182,9 @@ def find_accuracy(loader, zeroshot_weights):
     if __name__ == '__main__':  #need this for running on windows
         with torch.no_grad():
             top1, top5, n = 0., 0., 0.
-            for i, (images, target) in enumerate(tqdm(loader)):
+            for i, (images, features, img_names, indexes) in enumerate(tqdm(loader)):
                 images = images.cuda()
-                target = target.cuda()
+                target = indexes.cuda()
                 
                 # predict
                 image_features = model.encode_image(images)
