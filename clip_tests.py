@@ -121,6 +121,7 @@ def create_prompts():
     return classes, templates
 
 animal_classes, animal_templates = create_prompts()
+print(animal_classes, animal_classes.index('horse'))
 
 
 '''
@@ -136,15 +137,15 @@ loader = load_images()
 def load_images():
     batch_size = 24
     train_params = {'batch_size': batch_size, 'shuffle': True, 'num_workers': 3}
-    train_process_steps = transforms.Compose([
-        transforms.RandomRotation(15),
-        transforms.RandomHorizontalFlip(),
-        transforms.ColorJitter(brightness=0.3, contrast=0.3),
-        transforms.Resize((224,224)), # ImageNet standard
-        transforms.ToTensor()
-    ])
+    # train_process_steps = transforms.Compose([
+    #     transforms.RandomRotation(15),
+    #     transforms.RandomHorizontalFlip(),
+    #     transforms.ColorJitter(brightness=0.3, contrast=0.3),
+    #     transforms.Resize((224,224)), # ImageNet standard
+    #     transforms.ToTensor()
+    # ])
 
-    train_dataset = AnimalDataset('trainclasses.txt', train_process_steps)
+    train_dataset = AnimalDataset('trainclasses.txt', preprocess)
     return torch.utils.data.DataLoader(train_dataset, batch_size=32, num_workers=2)
 
 loader = load_images()
@@ -182,7 +183,6 @@ def find_accuracy(loader, zeroshot_weights):
         with torch.no_grad():
             top1, top5, n = 0., 0., 0.
             for i, (images, features, img_names, target) in enumerate(tqdm(loader)):
-                print(target)
                 images = images.cuda()
                 target = target.cuda()
                 

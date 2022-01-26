@@ -14,10 +14,11 @@ class AnimalDataset(data.dataset.Dataset):
 
     class_to_index = dict()
     # Build dictionary of indices to classes
-    with open('data/classes.txt') as f:
+    with open(f'data/{classes_file}') as f: # CHANGED THIS BLOCK
       index = 0
       for line in f:
-        class_name = line.split('\t')[1].strip()
+        # class_name = line.split('\t')[1].strip() 
+        class_name = line.strip()
         class_to_index[class_name] = index
         index += 1
     self.class_to_index = class_to_index
