@@ -8,27 +8,10 @@ from AnimalDataset import AnimalDataset
 from torch.utils import data
 import torchvision.transforms as transforms
 
+
+'''Loading the model'''
 model, preprocess = clip.load("ViT-B/32")
 model.eval()
-'''
-def load_clip():
-    ###Preparation for Colab
-    #print("Torch version:", torch.__version__)
-    #assert torch.__version__.split(".") >= ["1", "7", "1"], "PyTorch 1.7.1 or later is required"
-
-    ###Loading the model
-    #print(clip.available_models())
-    model, preprocess = clip.load("ViT-B/32")
-
-    input_resolution = model.visual.input_resolution
-    context_length = model.context_length
-    vocab_size = model.vocab_size
-
-    print("Model parameters:", f"{np.sum([int(np.prod(p.shape)) for p in model.parameters()]):,}")
-    print("Input resolution:", input_resolution)
-    print("Context length:", context_length)
-    print("Vocab size:", vocab_size)
-'''
 
 
 def create_prompts():
@@ -122,18 +105,8 @@ def create_prompts():
     return classes, templates
 
 animal_classes, animal_templates = create_prompts()
-print(animal_classes, animal_classes.index('horse'))
+#print(animal_classes, animal_classes.index('horse'))
 
-
-'''
-def load_images():
-    #Loading the Images
-    images = torchvision.datasets.ImageFolder("./data/JPEGImages/trainclasses/", transform=preprocess)
-    loader = torch.utils.data.DataLoader(images, batch_size=32, num_workers=2)
-    return loader
-
-loader = load_images()
-'''
 
 def load_images():
     batch_size = 24
@@ -152,11 +125,37 @@ def load_images():
 loader = load_images()
 
 
+def load_attributes():
+    attribute_dict = {}
+
+    attributes = [line.split()[-1] for line in open('./data/predicates.txt')]
+    animals = [line.split()[-1] for line in open('./data/classes.txt')]
+    one_hots = [line.split() for line in open('./data/predicate-matrix-binary.txt')]
+
+    attribute_dict = {a : o for a, o in zip(animals, one_hots)}
+    return attributes, attribute_dict
+
+attributes, attribute_dict = load_attributes()
+
+
+def describe_animal(name, includeNegatives=False):
+    description = 'animal that is '
+    attribs = attribute_dict[name]
+    if not includeNegatives:
+        individ_attributes = [attributes[i] for i in range(len(attributes)) if attribs[i] == '1']
+        description += ' and '.join(individ_attributes)
+    else:
+        individ_attributes = [attributes[i] if attribs[i] == '1' else 'not ' + attributes[i] for i in range(len(attributes))]
+        description += ' and '.join(individ_attributes)
+    return description
+
+
 def zeroshot_classifier(classnames, templates):
     with torch.no_grad():
         zeroshot_weights = []
         for classname in tqdm(classnames):
-            texts = [template.format(classname) for template in templates] #format with class
+            animal_description = describe_animal(classname, includeNegatives=False)
+            texts = [template.format(animal_description) for template in templates] #format with class
             texts = clip.tokenize(texts).cuda() #tokenize
             class_embeddings = model.encode_text(texts) #embed with text encoder
             class_embeddings /= class_embeddings.norm(dim=-1, keepdim=True)
@@ -171,10 +170,6 @@ zeroshot_weights = zeroshot_classifier(animal_classes, animal_templates)
 
 def accuracy(output, target, topk=(1,)):
     pred = output.topk(max(topk), 1, True, True)[1].t()
-    #p = ignite.utils.to_onehot(pred[0], 1000)
-    #t = ignite.utils.to_onehot(target, 1000)
-    #print(p.ndimension(), t.ndimension())
-    #confusion_matrix.update((output, target))  #update must receive output of the form (y_pred, y)
     correct = pred.eq(target.view(1, -1).expand_as(pred))
     return [float(correct[:k].reshape(-1).float().sum(0, keepdim=True).cpu().numpy()) for k in topk]
 
@@ -183,11 +178,7 @@ def find_accuracy(loader, zeroshot_weights):
     if __name__ == '__main__':  #need this for running on windows
         with torch.no_grad():
             top1, top5, n = 0., 0., 0.
-<<<<<<< HEAD
-            for i, (images, features, img_names, target) in enumerate(tqdm(loader)):
-=======
             for i, (images, features, img_names, indexes) in enumerate(tqdm(loader)):
->>>>>>> 476d938623d817f7375b3a2482cf0bf28f8515f4
                 images = images.cuda()
                 target = indexes.cuda()
                 
