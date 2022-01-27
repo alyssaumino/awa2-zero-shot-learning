@@ -177,10 +177,11 @@ def filter_attributes(attribute_list):
               'vegetation', 
               'insects',
               'newworld', 
-              'oldworld',
+              'oldworld', 
               'bush',
               'nestspot']
     [attribute_list.remove(rm) for rm in remove if rm in attribute_list]
+    [attribute_list.remove('not ' + rm) for rm in remove if 'not ' + rm in attribute_list]
 
 
 def zeroshot_classifier(classnames, templates):
