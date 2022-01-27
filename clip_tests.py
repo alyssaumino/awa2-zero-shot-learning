@@ -141,13 +141,46 @@ attributes, attribute_dict = load_attributes()
 def describe_animal(name, includeNegatives=False):
     description = 'animal that is '
     attribs = attribute_dict[name]
+    individ_attributes = []
     if not includeNegatives:
         individ_attributes = [attributes[i] for i in range(len(attributes)) if attribs[i] == '1']
-        description += ' and '.join(individ_attributes)
     else:
         individ_attributes = [attributes[i] if attribs[i] == '1' else 'not ' + attributes[i] for i in range(len(attributes))]
-        description += ' and '.join(individ_attributes)
+    filter_attributes(individ_attributes)
+    description += ' and '.join(individ_attributes)
     return description
+
+
+def filter_attributes(attribute_list):
+    remove = ['patches',
+              'toughskin', 
+              'bulbous', 
+              'lean', 
+              'hands', 
+              'pads',
+              'chewteeth',
+              'meatteeth', 
+              'buckteeth', 
+              'strainteeth',
+              'smelly', 
+              'hops', 
+              'tunnels', 
+              'walks',
+              'muscle', 
+              'active', 
+              'inactive',
+              'hibernate',
+              'agility',
+              'fish',
+              'meat', 
+              'plankton', 
+              'vegetation', 
+              'insects',
+              'newworld', 
+              'oldworld',
+              'bush',
+              'nestspot']
+    [attribute_list.remove(rm) for rm in remove if rm in attribute_list]
 
 
 def zeroshot_classifier(classnames, templates):
