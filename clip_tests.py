@@ -178,7 +178,18 @@ def filter_attributes(attribute_list):
               'insects',
               'newworld', 
               'oldworld', 
-              'bush',
+              'desert', 
+              'bush', 
+              'plains', 
+              'forest', 
+              'fields', 
+              'jungle', 
+              'mountains', 
+              'ocean', 
+              'ground', 
+              'water', 
+              'tree', 
+              'cave',
               'nestspot']
     [attribute_list.remove(rm) for rm in remove if rm in attribute_list]
     [attribute_list.remove('not ' + rm) for rm in remove if 'not ' + rm in attribute_list]
