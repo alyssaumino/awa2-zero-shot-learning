@@ -187,6 +187,8 @@ def filter_attributes(attribute_list, includeNegatives=False):
                     'yellow',
                     'spots',
                     'stripes', 
+                    'hairless', 
+                    'small',
                     'flippers', 
                     'hooves', 
                     'paws', 
@@ -197,8 +199,12 @@ def filter_attributes(attribute_list, includeNegatives=False):
                     'tusks',
                     'horns', 
                     'claws', 
-                    'tusks',
+                    'tusks', 
+                    'slow', 
+                    'weak', 
+                    'bipedal',
                     'forager', 
+                    'grazer',
                     'skimmer', 
                     'stalker',
                     'arctic', 
@@ -214,6 +220,7 @@ def filter_attributes(attribute_list, includeNegatives=False):
                     'water', 
                     'tree', 
                     'cave', 
+                    'fierce',
                     'group']
         [attribute_list.remove(rm) for rm in remove_2 if rm in attribute_list]
         remove_2.extend(remove_1)
