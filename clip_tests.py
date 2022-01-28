@@ -152,16 +152,22 @@ def describe_animal(name, includeNegatives=False):
 
 
 def filter_attributes(attribute_list):
-    remove = ['patches',
+    remove = ['patches', 
+              'spots', 
+              'stripes',
               'toughskin', 
               'bulbous', 
               'lean', 
+              'flippers',
               'hands', 
-              'pads',
+              'hooves',
+              'pads', 
+              'paws',
               'chewteeth',
               'meatteeth', 
               'buckteeth', 
               'strainteeth',
+              'claws',
               'smelly', 
               'hops', 
               'tunnels', 
@@ -178,6 +184,8 @@ def filter_attributes(attribute_list):
               'insects',
               'newworld', 
               'oldworld', 
+              'arctic',
+              'coastal',
               'desert', 
               'bush', 
               'plains', 
@@ -189,7 +197,8 @@ def filter_attributes(attribute_list):
               'ground', 
               'water', 
               'tree', 
-              'cave',
+              'cave', 
+              'group',
               'nestspot']
     [attribute_list.remove(rm) for rm in remove if rm in attribute_list]
     [attribute_list.remove('not ' + rm) for rm in remove if 'not ' + rm in attribute_list]
