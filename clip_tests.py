@@ -146,62 +146,78 @@ def describe_animal(name, includeNegatives=False):
         individ_attributes = [attributes[i] for i in range(len(attributes)) if attribs[i] == '1']
     else:
         individ_attributes = [attributes[i] if attribs[i] == '1' else 'not ' + attributes[i] for i in range(len(attributes))]
-    filter_attributes(individ_attributes)
+    filter_attributes(individ_attributes, includeNegatives)
     description += ' and '.join(individ_attributes)
     return description
 
 
-def filter_attributes(attribute_list):
-    remove = ['patches', 
-              'spots', 
-              'stripes',
-              'toughskin', 
-              'bulbous', 
-              'lean', 
-              'flippers',
-              'hands', 
-              'hooves',
-              'pads', 
-              'paws',
+def filter_attributes(attribute_list, includeNegatives=False):
+    remove_1 = ['patches',
+              'toughskin',
+              'bulbous',
+              'lean',
+              'hands',
+              'pads',
               'chewteeth',
-              'meatteeth', 
-              'buckteeth', 
+              'meatteeth',
+              'buckteeth',
               'strainteeth',
-              'claws',
-              'smelly', 
-              'hops', 
-              'tunnels', 
+              'smelly',
+              'hops',
+              'tunnels',
               'walks',
-              'muscle', 
-              'active', 
+              'muscle',
+              'active',
               'inactive',
               'hibernate',
               'agility',
               'fish',
-              'meat', 
-              'plankton', 
-              'vegetation', 
+              'meat',
+              'plankton',
+              'vegetation',
               'insects',
-              'newworld', 
-              'oldworld', 
-              'arctic',
-              'coastal',
-              'desert', 
-              'bush', 
-              'plains', 
-              'forest', 
-              'fields', 
-              'jungle', 
-              'mountains', 
-              'ocean', 
-              'ground', 
-              'water', 
-              'tree', 
-              'cave', 
-              'group',
+              'newworld',
+              'oldworld',
+              'bush',
               'nestspot']
-    [attribute_list.remove(rm) for rm in remove if rm in attribute_list]
-    [attribute_list.remove('not ' + rm) for rm in remove if 'not ' + rm in attribute_list]
+    [attribute_list.remove(rm) for rm in remove_1 if rm in attribute_list]
+    if includeNegatives:
+        remove_2 = ['orange', 
+                    'red', 
+                    'yellow',
+                    'spots',
+                    'stripes', 
+                    'flippers', 
+                    'hooves', 
+                    'paws', 
+                    'longleg', 
+                    'longneck', 
+                    'horns', 
+                    'claws', 
+                    'tusks',
+                    'horns', 
+                    'claws', 
+                    'tusks',
+                    'forager', 
+                    'skimmer', 
+                    'stalker',
+                    'arctic', 
+                    'coastal', 
+                    'desert', 
+                    'plains', 
+                    'forest', 
+                    'fields', 
+                    'jungle', 
+                    'mountains', 
+                    'ocean', 
+                    'ground', 
+                    'water', 
+                    'tree', 
+                    'cave', 
+                    'group']
+        [attribute_list.remove(rm) for rm in remove_2 if rm in attribute_list]
+        remove_2.extend(remove_1)
+        [attribute_list.remove('not ' + rm) for rm in remove_2 if 'not ' + rm in attribute_list]
 
 
 def zeroshot_classifier(classnames, templates):
