@@ -8,6 +8,9 @@ from AnimalDataset import AnimalDataset
 from torch.utils import data
 import torchvision.transforms as transforms
 
+import wandb
+incorrect_imgs = [] #mislabeled images to log to wandb
+
 
 '''Loading the model'''
 model, preprocess = clip.load("ViT-B/32")
@@ -251,6 +254,21 @@ def accuracy(output, target, topk=(1,)):
     return [float(correct[:k].reshape(-1).float().sum(0, keepdim=True).cpu().numpy()) for k in topk]
 
 
+def get_displ_img(img):
+    try:
+        img = img.cpu().numpy().transpose((1, 2, 0))
+    except:
+        img = img.numpy().transpose((1, 2, 0))
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
+    displ_img = std * img + mean
+    displ_img = np.clip(displ_img, 0, 1)
+    displ_img /= np.max(displ_img)
+    displ_img = displ_img
+    displ_img = np.uint8(displ_img*255)
+    return displ_img/np.max(displ_img)
+
+
 def find_accuracy(loader, zeroshot_weights):
     if __name__ == '__main__':  #need this for running on windows
         with torch.no_grad():
@@ -267,6 +285,9 @@ def find_accuracy(loader, zeroshot_weights):
                 # measure accuracy
                 acc1, acc5 = accuracy(logits, target, topk=(1, 5))
                 top1 += acc1
+                if acc1 == 0:
+                    img = get_displ_img(torch.squeeze(images, axis=0))
+                    incorrect_imgs.append(img)
                 top5 += acc5
                 n += images.size(0)
 
@@ -277,3 +298,8 @@ def find_accuracy(loader, zeroshot_weights):
         print(f"Top-5 accuracy: {top5:.2f}")
 
 find_accuracy(loader, zeroshot_weights)
+
+
+'''Log Images to WandB'''
+wandb.init(project="my-test-project", entity="aly")
+wandb.log({"pop_wallet": [wandb.Image(image) for image in incorrect_imgs]})
