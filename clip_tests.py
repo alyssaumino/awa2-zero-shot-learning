@@ -123,7 +123,7 @@ def load_images():
     # ])
 
     train_dataset = AnimalDataset('trainclasses.txt', preprocess)
-    return torch.utils.data.DataLoader(train_dataset, batch_size=32, num_workers=2)
+    return torch.utils.data.DataLoader(train_dataset, batch_size=24, num_workers=2) #batch_size previously 24, changed to 1 for wandb upload
 
 loader = load_images()
 
