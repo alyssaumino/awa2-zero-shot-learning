@@ -10,6 +10,8 @@ import torchvision.transforms as transforms
 
 import wandb
 incorrect_imgs = [] #mislabeled images to log to wandb
+'''Initialize WandB Project'''
+wandb.init(project="animals-attributes-project", entity="aly")
 
 
 '''Loading the model'''
@@ -123,7 +125,7 @@ def load_images():
     # ])
 
     train_dataset = AnimalDataset('trainclasses.txt', preprocess)
-    return torch.utils.data.DataLoader(train_dataset, batch_size=24, num_workers=2) #batch_size previously 24, changed to 1 for wandb upload
+    return torch.utils.data.DataLoader(train_dataset, batch_size=1, num_workers=2) #batch_size previously 24, changed to 1 for wandb upload
 
 loader = load_images()
 
@@ -290,6 +292,7 @@ def find_accuracy(loader, zeroshot_weights):
                     incorrect_imgs.append(img)
                 top5 += acc5
                 n += images.size(0)
+                wandb.log(acc1, acc5)
 
         top1 = (top1 / n) * 100
         top5 = (top5 / n) * 100 
@@ -301,5 +304,4 @@ find_accuracy(loader, zeroshot_weights)
 
 
 '''Log Images to WandB'''
-wandb.init(project="my-test-project", entity="aly")
 wandb.log({"pop_wallet": [wandb.Image(image) for image in incorrect_imgs]})
