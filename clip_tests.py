@@ -292,13 +292,13 @@ def find_accuracy(loader, zeroshot_weights):
                     incorrect_imgs.append(img)
                 top5 += acc5
                 n += images.size(0)
-                wandb.log({"accuracy": {"top-1": acc1, "top-5": acc5}})
 
         top1 = (top1 / n) * 100
         top5 = (top5 / n) * 100 
 
         print(f"Top-1 accuracy: {top1:.2f}")
         print(f"Top-5 accuracy: {top5:.2f}")
+        wandb.log({"accuracy": {"top-1": top1, "top-5": top5}})
 
 find_accuracy(loader, zeroshot_weights)
 
